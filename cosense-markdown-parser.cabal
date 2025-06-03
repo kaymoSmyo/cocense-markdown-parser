@@ -84,6 +84,7 @@ executable cosense-markdown-parser
   build-depends:
     , base                     ^>=4.18.3.0
     , cosense-markdown-parser
+    , raw-strings-qq
 
   hs-source-dirs: app
 
