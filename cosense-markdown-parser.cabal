@@ -1,0 +1,100 @@
+cabal-version:   3.0
+name:            cosense-markdown-parser
+version:         0.1.0.0
+
+-- synopsis:
+-- description:
+license:         BSD-3-Clause
+license-file:    LICENSE
+author:          kaymoSmyo
+maintainer:      aymsuq@gmail.com
+
+-- copyright:
+category:        Text
+build-type:      Simple
+extra-doc-files: CHANGELOG.md
+
+-- extra-source-files:
+
+common common-config
+  default-language:   GHC2021
+  ghc-options:
+    -Wall -Wcompat -Widentities -Wincomplete-record-updates
+    -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
+
+  build-depends:
+    , attoparsec  >=0.14.4 && <0.15
+    , text        >=2.0.2  && <2.1
+
+  default-extensions:
+    BangPatterns
+    BinaryLiterals
+    ConstraintKinds
+    DataKinds
+    DefaultSignatures
+    DeriveDataTypeable
+    DeriveFoldable
+    DeriveFunctor
+    DeriveGeneric
+    DeriveTraversable
+    DoAndIfThenElse
+    EmptyDataDecls
+    ExistentialQuantification
+    FlexibleContexts
+    FlexibleInstances
+    FunctionalDependencies
+    GADTs
+    GeneralizedNewtypeDeriving
+    InstanceSigs
+    KindSignatures
+    LambdaCase
+    MultiParamTypeClasses
+    MultiWayIf
+    NamedFieldPuns
+    OverloadedStrings
+    PartialTypeSignatures
+    PatternGuards
+    PolyKinds
+    RankNTypes
+    RecordWildCards
+    ScopedTypeVariables
+    StandaloneDeriving
+    TupleSections
+    TypeFamilies
+    TypeSynonymInstances
+    ViewPatterns
+
+-- AutoDeriveTypeable
+-- MonadFailDesugaring
+library
+  import:          common-config
+  exposed-modules: MyLib
+
+  -- other-modules:
+  -- other-extensions:
+  build-depends:   base ^>=4.18.3.0
+  hs-source-dirs:  src
+
+executable cosense-markdown-parser
+  import:         common-config
+  main-is:        Main.hs
+
+  -- other-modules:
+  -- other-extensions:
+  build-depends:
+    , base                     ^>=4.18.3.0
+    , cosense-markdown-parser
+
+  hs-source-dirs: app
+
+test-suite cosense-markdown-parser-test
+  import:         common-config
+
+  -- other-modules:
+  -- other-extensions:
+  type:           exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is:        Main.hs
+  build-depends:
+    , base                     ^>=4.18.3.0
+    , cosense-markdown-parser
