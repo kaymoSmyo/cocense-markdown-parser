@@ -1,8 +1,12 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module Main (main) where
 
+import Control.Applicative (optional) -- many' and optional are useful
 import Data.Attoparsec.Text
 import Data.Char (isSpace)
 import Data.Text qualified as T
+import Text.RawString.QQ
 
 main :: IO ()
 main = do
@@ -11,20 +15,36 @@ main = do
         Left err -> putStrLn $ "Parse error: " ++ err
 
 t :: Either String String
-t = parseOnly parseCustomCodeBlock tmp
+t = parseOnly parseCustomCodeBlock myRawString
+
+{- | Parses lines that start with at least one space, collecting them.
+The parsing stops when a line does not start with a space, or EOF is reached.
+Each collected line includes its original leading space(s).
+-}
+parseIndentedCodeContent :: Parser T.Text
+parseIndentedCodeContent = do
+    let lineStartingWithSpace = do
+            mc <- peekChar -- Check the next char without consuming
+            case mc of
+                Just ' ' -> do
+                    -- If it's a space
+                    -- Consume the whole line including the leading space(s)
+                    line <- takeTill (== '\n')
+                    -- Consume the newline, if present. Handles EOF correctly for the last line.
+                    _ <- optional (char '\n')
+                    return line
+                _ -> fail "not an indented line" -- This failure will stop `many'`
+    linesList <- many' lineStartingWithSpace
+    return $ T.unlines linesList
 
 -- | Parses the custom "code:" block format and converts it to Markdown.
 parseCustomCodeBlock :: Parser String
 parseCustomCodeBlock = do
     _ <- string "code:"
-    -- Language name: non-space, non-newline characters
     lang <- takeWhile1 (\c -> not (isSpace c) && c /= '\n')
-    -- Consume the rest of the header line (optional description)
     _ <- takeTill (== '\n')
     _ <- char '\n' -- Consume the newline character after the header
-
-    -- The rest of the input is the code block content
-    codeBlockRaw <- takeText
+    codeBlockRaw <- parseIndentedCodeContent
 
     let processedCode = stripLeadingSpacePerLine codeBlockRaw
     return $ formatToMarkdown lang processedCode
@@ -44,3 +64,20 @@ formatToMarkdown lang code = T.unpack $ T.concat ["```", lang, "\n", code, "```\
 
 tmp :: T.Text
 tmp = "code:haskell\n tmp = 6\n tmp2 = 6\n     where\n"
+
+myRawString :: T.Text
+myRawString =
+    [r|code:json
+ "Demo": {
+     "type": "stdio",
+     "command": "uv",
+     "args": [
+         "run",
+         "--with",
+         "mcp[cli]",
+         "mcp",
+         "run",
+         "/home/myubuntu/program/mcp-in-vscode/server.py"
+     ],
+     "env": {}
+|]
