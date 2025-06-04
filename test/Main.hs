@@ -1,7 +1,7 @@
 module Main (main) where
 
 import AST
-import Data.Text (Text)
+import Data.Text (Text, append)
 import Test.HUnit
 
 parseScrapbox :: a
@@ -128,6 +128,18 @@ blockTests =
             "blank line"
             "\n"
             (Document [BlankLine])
+        , testParseAndRender
+            "code block with tab indent"
+            "code:haskell\n\tmain = pure ()"
+            (Document [CodeBlock "haskell" "main = pure ()"])
+        , testParseAndRender
+            "code block with space indent"
+            "code:haskell\n main = pure ()"
+            (Document [CodeBlock "haskell" "main = pure ()"])
+        , testParseAndRender
+            "code block with full-width space indent"
+            "code:haskell\n　main = pure ()"
+            (Document [CodeBlock "haskell" "main = pure ()"])
         ]
 
 -- リスト要素のテスト
@@ -155,6 +167,33 @@ listTests =
                 , UListItem 3 [Paragraph [PlainText "item3"]]
                 ]
             )
+        , testParseAndRender
+            "list items with mixed indentation"
+            " item1\n\titem2\n　item3" -- スペース、タブ、全角スペース
+            ( Document
+                [ UListItem 1 [Paragraph [PlainText "item1"]]
+                , UListItem 1 [Paragraph [PlainText "item2"]]
+                , UListItem 1 [Paragraph [PlainText "item3"]]
+                ]
+            )
+        , testParseAndRender
+            "nested list with mixed indentation"
+            " item1\n\t\titem2\n　　　item3" -- レベル1、2、3をそれぞれ異なる種類のインデント
+            ( Document
+                [ UListItem 1 [Paragraph [PlainText "item1"]]
+                , UListItem 2 [Paragraph [PlainText "item2"]]
+                , UListItem 3 [Paragraph [PlainText "item3"]]
+                ]
+            )
+        , testParseAndRender
+            "list with irregular mixed indentation"
+            " item1\n 　item2\n　 \titem3" -- 半角スペース+全角スペース、全角スペース+半角スペース+タブの混在
+            ( Document
+                [ UListItem 1 [Paragraph [PlainText "item1"]]
+                , UListItem 2 [Paragraph [PlainText "item2"]]
+                , UListItem 3 [Paragraph [PlainText "item3"]]
+                ]
+            )
         ]
 
 -- 複合的なドキュメントのテスト
@@ -163,12 +202,12 @@ complexDocumentTests =
     TestList
         [ testParseAndRender
             "mixed elements"
-            -- Title
-            --  [* bold] and [/ italic]
-            --  code:haskell
-            --      main = pure ()
-            --  #tag
-            "Title\n [* bold] and [/ italic]\n code:haskell\n  main = pure ()\n #tag"
+            ( "Title\n"
+                `append` " [* bold] and [/ italic]"
+                `append` "\tcode:haskell"
+                `append` "　 main = pure ()"
+                `append` " #tag"
+            )
             ( Document
                 [ Paragraph [PlainText "Title"]
                 , UListItem
