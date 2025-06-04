@@ -70,7 +70,7 @@ common common-config
 -- MonadFailDesugaring
 library
   import:          common-config
-  exposed-modules: MyLib, AST
+  exposed-modules: AST
 
   -- other-modules:
   -- other-extensions:
