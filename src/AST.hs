@@ -62,6 +62,6 @@ example2 =
     Document
         [ UListItem
             1
-            [ CodeBlock (Just "haskel") "tmp = 0\ntmp2 = 0"
+            [ CodeBlock "Haskell" "tmp = 0\ntmp2 = 0"
             ]
         ]
