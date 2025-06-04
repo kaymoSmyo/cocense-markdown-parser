@@ -1,4 +1,4 @@
-module AST () where
+module AST (Document (..), Block (..), Inline (..)) where
 
 import Data.Text (Text)
 
@@ -11,9 +11,9 @@ data Block
     = -- | 段落 (インライン要素のリスト) 改行までの文を意味する
       Paragraph [Inline]
     | -- | コードブロック (言語指定と内容)
-      CodeBlock (Maybe Text) Text
+      CodeBlock Text Text
     | -- | リストアイテム (インデントレベルと子ブロック)
-      ListItem Word [Block]
+      UListItem Word [Block]
     | -- | 空行
       -- 他のブロック要素 (見出し、引用など) はScrapboxの記法に合わせて追加
       BlankLine
@@ -38,12 +38,14 @@ data Inline
     | -- | 画像 (画像URLと表示テキスト)
       -- 他のインライン要素 (打ち消し線、下線など) はScrapboxの記法に合わせて追加
       Image Text (Maybe Text)
+    | -- | []記法
+      RefText Text
     deriving (Show, Eq)
 
 example1 :: Document
 example1 =
     Document
-        [ ListItem
+        [ UListItem
             1
             [ Paragraph
                 [ PlainText "aiue"
@@ -58,7 +60,7 @@ example1 =
 example2 :: Document
 example2 =
     Document
-        [ ListItem
+        [ UListItem
             1
             [ CodeBlock (Just "haskel") "tmp = 0\ntmp2 = 0"
             ]
