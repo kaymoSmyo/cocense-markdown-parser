@@ -23,7 +23,6 @@ common common-config
     -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
 
   build-depends:
-    , attoparsec      >=0.14.4 && <0.15
     , megaparsec      >=9.7.0  && <9.8
     , raw-strings-qq  >=1.1    && <1.2
     , text            >=2.0.2  && <2.1
