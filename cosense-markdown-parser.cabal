@@ -23,9 +23,10 @@ common common-config
     -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
 
   build-depends:
-    , megaparsec      >=9.7.0  && <9.8
-    , raw-strings-qq  >=1.1    && <1.2
-    , text            >=2.0.2  && <2.1
+    , lens            >=5.3.4 && <5.4
+    , megaparsec      >=9.7.0 && <9.8
+    , raw-strings-qq  >=1.1   && <1.2
+    , text            >=2.0.2 && <2.1
 
   default-extensions:
     BangPatterns
