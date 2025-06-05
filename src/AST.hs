@@ -23,7 +23,7 @@ data Block
 data Inline
     = -- | 装飾のないテキスト
       PlainText Text
-    | -- | 太字 [* ] * は複数個
+    | -- | 太字 [* ] * は複数個の可能性
       Bold Word Text
     | -- | イタリック [/ ]
       Italic Text
