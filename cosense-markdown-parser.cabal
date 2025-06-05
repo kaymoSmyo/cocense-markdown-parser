@@ -65,6 +65,7 @@ common common-config
     TypeFamilies
     TypeSynonymInstances
     ViewPatterns
+    TemplateHaskell
 
 -- AutoDeriveTypeable
 -- MonadFailDesugaring
