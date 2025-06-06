@@ -1,5 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module AST (Document (..), Block (..), Inline (..)) where
 
 import Control.Lens
@@ -15,8 +13,8 @@ data Block
       Paragraph {_indent :: Word, _line :: [Inline]}
     | -- | コードブロック (言語指定と内容)
       CodeBlock {_indent :: Word, _lang :: Text, _code :: Text}
-    | -- | 引用 >
-      Quotation [Inline]
+    | -- | 引用 > コードブロックが来ることはない
+      Quotation {_indent :: Word, _quaLine :: Block}
     | -- | 空行
       BlankLine
     deriving (Show, Eq)
