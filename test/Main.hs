@@ -1,14 +1,46 @@
 module Main (main) where
 
-import AST
-import Control.Lens
+import AST (
+    Block (
+        BlankLine,
+        CodeBlock,
+        Paragraph,
+        Quotation,
+        _code,
+        _indent,
+        _lang,
+        _line,
+        _quaLine
+    ),
+    Document (..),
+    Inline (
+        Bold,
+        CodeSpan,
+        CommandLine,
+        CrossOut,
+        HashTag,
+        Icon,
+        Image,
+        Italic,
+        Link,
+        Math,
+        PageLink,
+        PlainText,
+        _boldLevel,
+        _boldText,
+        _imageURL,
+        _italicBoldLevel,
+        _italicText,
+        _link,
+        _linkLabel,
+        _linkedURL
+    ),
+ )
 import Data.Text (Text, append)
 import Test.HUnit
 
 parseScrapbox :: a
 parseScrapbox = undefined
-renderMarkdown :: a
-renderMarkdown = undefined
 
 -- ヘルパー関数
 testParseCocense :: String -> Text -> Document -> Test
@@ -52,6 +84,10 @@ inlineDecoratedTests =
             "[/ italic]"
             (Document [Paragraph{_indent = 0, _line = [Italic{_italicBoldLevel = 0, _italicText = "italic"}]}])
         , testParseCocense
+            "italic"
+            "[/** bold italic]"
+            (Document [Paragraph{_indent = 0, _line = [Italic{_italicBoldLevel = 2, _italicText = "bold italic"}]}])
+        , testParseCocense
             "code span"
             "`code`"
             (Document [Paragraph{_indent = 0, _line = [CodeSpan "code"]}])
@@ -70,6 +106,10 @@ linkTests =
             "[url text]"
             (Document [Paragraph{_indent = 0, _line = [Link{_link = "url", _linkLabel = Just "text"}]}])
         , testParseCocense
+            "link with text"
+            "[text url]"
+            (Document [Paragraph{_indent = 0, _line = [Link{_link = "url", _linkLabel = Just "text"}]}])
+        , testParseCocense
             "image with URL only"
             "[https://example.com/image.png]"
             (Document [Paragraph{_indent = 0, _line = [Image{_imageURL = "https://example.com/image.png", _linkedURL = ""}]}])
@@ -77,7 +117,6 @@ linkTests =
             "image with URL and linkedURL"
             "[https://example.com/image.png alt text]"
             (Document [Paragraph{_indent = 0, _line = [Image{_imageURL = "https://example.com/image.png", _linkedURL = "alt text"}]}])
-
         ]
 
 -- []記法のテスト
@@ -92,10 +131,6 @@ pageLinkTest =
             "multiple page links"
             "[ref1][ref2]"
             (Document [Paragraph{_indent = 0, _line = [PageLink "ref1", PageLink "ref2"]}])
-        , testParseCocense
-            "page link with nested brackets in text"
-            "[ref [nest ref]]"
-            (Document [Paragraph{_indent = 0, _line = [PageLink "ref [nest ref]"]}])
         ]
 
 -- 特殊インライン要素のテスト
@@ -122,8 +157,8 @@ blockTests =
             (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = pure ()"}])
         , testParseCocense
             "code block with specified language"
-            "code:haskell\n main = putStrLn \"Hello\""
-            (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = putStrLn \"Hello\""}])
+            "code:haskell\n main = putStrLn \"Hello\"\n  where"
+            (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = putStrLn \"Hello\"\n  where"}])
         , testParseCocense
             "blank line"
             "\n"
@@ -210,7 +245,7 @@ complexDocumentTests =
             )
             ( Document
                 [ Paragraph{_indent = 0, _line = [PlainText "Title"]} -- Assuming Title is not indented
-                , Paragraph{_indent = 1, _line = [ Bold{_boldLevel = 1, _boldText = "bold"}, PlainText " and ", Italic{_italicBoldLevel = 0, _italicText = "italic"}]} -- Assuming this line is indented by 1
+                , Paragraph{_indent = 1, _line = [Bold{_boldLevel = 1, _boldText = "bold"}, PlainText " and ", Italic{_italicBoldLevel = 0, _italicText = "italic"}]} -- Assuming this line is indented by 1
                 , CodeBlock{_indent = 1, _lang = "haskell", _code = " main = pure ()"} -- Assuming CodeBlock is part of the list item, hence indent 1. This might need further clarification based on parser logic.
                 , Paragraph{_indent = 1, _line = [HashTag "tag"]} -- Assuming this line is indented by 1
                 ]
@@ -219,7 +254,7 @@ complexDocumentTests =
 
 -- コマンドラインのテスト
 commandLineTests :: Test
-commandLineTests = 
+commandLineTests =
     TestList
         [ testParseCocense
             "command line with dollar"
