@@ -61,11 +61,11 @@ common common-config
     RecordWildCards
     ScopedTypeVariables
     StandaloneDeriving
+    TemplateHaskell
     TupleSections
     TypeFamilies
     TypeSynonymInstances
     ViewPatterns
-    TemplateHaskell
 
 -- AutoDeriveTypeable
 -- MonadFailDesugaring

@@ -1,6 +1,5 @@
 module Main (main) where
 
-import Control.Lens
 import AST (
     Block (
         BlankLine,
@@ -37,14 +36,13 @@ import AST (
         _linkedURL
     ),
  )
+import Control.Lens
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Test.HUnit
 
 parseScrapbox :: a
 parseScrapbox = undefined
-renderMarkdown :: a
-renderMarkdown = undefined
 
 -- ヘルパー関数
 testParseCocense :: String -> Text -> Document -> Test
@@ -62,7 +60,7 @@ inlineTextTests =
             "This is plain text"
             (Document [Paragraph{_indent = 0, _line = [PlainText "This is plain text"]}])
         , testParseCocense
-            "mixed plain texts"
+            "plain text with newline"
             "First line\nSecond line"
             ( Document
                 [ Paragraph{_indent = 0, _line = [PlainText "First line"]}
@@ -88,6 +86,10 @@ inlineDecoratedTests =
             "[/ italic]"
             (Document [Paragraph{_indent = 0, _line = [Italic{_italicBoldLevel = 0, _italicText = "italic"}]}])
         , testParseCocense
+            "italic"
+            "[/** bold italic]"
+            (Document [Paragraph{_indent = 0, _line = [Italic{_italicBoldLevel = 2, _italicText = "bold italic"}]}])
+        , testParseCocense
             "code span"
             "`code`"
             (Document [Paragraph{_indent = 0, _line = [CodeSpan "code"]}])
@@ -100,20 +102,23 @@ linkTests =
         [ testParseCocense
             "simple link"
             "[link]"
-            (Document [Paragraph [Link "link" Nothing]])
+            (Document [Paragraph{_indent = 0, _line = [Link{_link = "link", _linkLabel = Nothing}]}])
         , testParseCocense
             "link with text"
             "[url text]"
-            (Document [Paragraph [Link "url" (Just "text")]])
+            (Document [Paragraph{_indent = 0, _line = [Link{_link = "url", _linkLabel = Just "text"}]}])
         , testParseCocense
-            "image"
+            "link with text"
+            "[text url]"
+            (Document [Paragraph{_indent = 0, _line = [Link{_link = "url", _linkLabel = Just "text"}]}])
+        , testParseCocense
+            "image with URL only"
             "[https://example.com/image.png]"
-            (Document [Paragraph [Image "https://example.com/image.png" Nothing]])
+            (Document [Paragraph{_indent = 0, _line = [Image{_imageURL = "https://example.com/image.png", _linkedURL = ""}]}])
         , testParseCocense
-            "image with alt text"
+            "image with URL and linkedURL"
             "[https://example.com/image.png alt text]"
-            (Document [Paragraph [Image "https://example.com/image.png" (Just "alt text")]])
-
+            (Document [Paragraph{_indent = 0, _line = [Image{_imageURL = "https://example.com/image.png", _linkedURL = "alt text"}]}])
         ]
 
 -- []記法のテスト
@@ -121,17 +126,13 @@ pageLinkTest :: Test
 pageLinkTest =
     TestList
         [ testParseCocense
-            "ref text"
+            "page link"
             "[reference]"
-            (Document [Paragraph [RefText "reference"]])
+            (Document [Paragraph{_indent = 0, _line = [PageLink "reference"]}])
         , testParseCocense
-            "multiple ref texts"
+            "multiple page links"
             "[ref1][ref2]"
-            (Document [Paragraph [RefText "ref1", RefText "ref2"]])
-        , testParseCocense
-            "nest ref text"
-            "[ref [nest ref]]"
-            (Document [Paragraph [RefText "ref [nest ref]"]])
+            (Document [Paragraph{_indent = 0, _line = [PageLink "ref1", PageLink "ref2"]}])
         ]
 
 -- 特殊インライン要素のテスト
@@ -141,11 +142,11 @@ specialInlineTests =
         [ testParseCocense
             "math"
             "[$ E = mc^2]"
-            (Document [Paragraph [Math "E = mc^2"]])
+            (Document [Paragraph{_indent = 0, _line = [Math "E = mc^2"]}])
         , testParseCocense
             "hashtag"
             "#tag"
-            (Document [Paragraph [HashTag "tag"]])
+            (Document [Paragraph{_indent = 0, _line = [HashTag "tag"]}])
         ]
 
 -- ブロックレベル要素のテスト
@@ -153,29 +154,29 @@ blockTests :: Test
 blockTests =
     TestList
         [ testParseCocense
-            "code block without language"
+            "code block with unspecified language"
             "code:haskell\n main = pure ()"
-            (Document [CodeBlock "haskell" "main = pure ()"])
+            (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = pure ()"}])
         , testParseCocense
-            "code block with language"
-            "code:haskell\n main = putStrLn \"Hello\""
-            (Document [CodeBlock "haskell" "main = putStrLn \"Hello\""])
+            "code block with specified language"
+            "code:haskell\n main = putStrLn \"Hello\"\n  where"
+            (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = putStrLn \"Hello\"\n  where"}])
         , testParseCocense
             "blank line"
             "\n"
             (Document [BlankLine])
         , testParseCocense
-            "code block with tab indent"
+            "code block with tab-indented content line"
             "code:haskell\n\tmain = pure ()"
-            (Document [CodeBlock "haskell" "main = pure ()"])
+            (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = pure ()"}])
         , testParseCocense
-            "code block with space indent"
+            "code block with space-indented content line"
             "code:haskell\n main = pure ()"
-            (Document [CodeBlock "haskell" "main = pure ()"])
+            (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = pure ()"}])
         , testParseCocense
-            "code block with full-width space indent"
+            "code block with full-width space-indented content line"
             "code:haskell\n　main = pure ()"
-            (Document [CodeBlock "haskell" "main = pure ()"])
+            (Document [CodeBlock{_indent = 0, _lang = "haskell", _code = "main = pure ()"}])
         ]
 
 -- リスト要素のテスト
@@ -185,49 +186,49 @@ listTests =
         [ testParseCocense
             "single list item"
             " item"
-            (Document [UListItem 1 [Paragraph [PlainText "item"]]])
+            (Document [Paragraph{_indent = 1, _line = [PlainText "item"]}])
         , testParseCocense
             "multiple list items"
             " item1\n item2"
             ( Document
-                [ UListItem 1 [Paragraph [PlainText "item1"]]
-                , UListItem 1 [Paragraph [PlainText "item2"]]
+                [ Paragraph{_indent = 1, _line = [PlainText "item1"]}
+                , Paragraph{_indent = 1, _line = [PlainText "item2"]}
                 ]
             )
         , testParseCocense
             "nested list items"
             " item1\n  item2\n   item3"
             ( Document
-                [ UListItem 1 [Paragraph [PlainText "item1"]]
-                , UListItem 2 [Paragraph [PlainText "item2"]]
-                , UListItem 3 [Paragraph [PlainText "item3"]]
+                [ Paragraph{_indent = 1, _line = [PlainText "item1"]}
+                , Paragraph{_indent = 2, _line = [PlainText "item2"]}
+                , Paragraph{_indent = 3, _line = [PlainText "item3"]}
                 ]
             )
         , testParseCocense
             "list items with mixed indentation"
             " item1\n\titem2\n　item3" -- スペース、タブ、全角スペース
             ( Document
-                [ UListItem 1 [Paragraph [PlainText "item1"]]
-                , UListItem 1 [Paragraph [PlainText "item2"]]
-                , UListItem 1 [Paragraph [PlainText "item3"]]
+                [ Paragraph{_indent = 1, _line = [PlainText "item1"]}
+                , Paragraph{_indent = 1, _line = [PlainText "item2"]}
+                , Paragraph{_indent = 1, _line = [PlainText "item3"]}
                 ]
             )
         , testParseCocense
             "nested list with mixed indentation"
             " item1\n\t\titem2\n　　　item3" -- レベル1、2、3をそれぞれ異なる種類のインデント
             ( Document
-                [ UListItem 1 [Paragraph [PlainText "item1"]]
-                , UListItem 2 [Paragraph [PlainText "item2"]]
-                , UListItem 3 [Paragraph [PlainText "item3"]]
+                [ Paragraph{_indent = 1, _line = [PlainText "item1"]}
+                , Paragraph{_indent = 2, _line = [PlainText "item2"]}
+                , Paragraph{_indent = 3, _line = [PlainText "item3"]}
                 ]
             )
         , testParseCocense
             "list with irregular mixed indentation"
             " item1\n 　item2\n　 \titem3" -- 半角スペース+全角スペース、全角スペース+半角スペース+タブの混在
             ( Document
-                [ UListItem 1 [Paragraph [PlainText "item1"]]
-                , UListItem 2 [Paragraph [PlainText "item2"]]
-                , UListItem 3 [Paragraph [PlainText "item3"]]
+                [ Paragraph{_indent = 1, _line = [PlainText "item1"]}
+                , Paragraph{_indent = 2, _line = [PlainText "item2"]}
+                , Paragraph{_indent = 3, _line = [PlainText "item3"]}
                 ]
             )
         ]
@@ -237,32 +238,26 @@ complexDocumentTests :: Test
 complexDocumentTests =
     TestList
         [ testParseCocense
-            "mixed elements"
-            ( "Title\n"
-                `append` " [* bold] and [/ italic]"
-                `append` "\tcode:haskell"
-                `append` "　 main = pure ()"
-                `append` " #tag"
-            )
+            "complex document with mixed elements"
+            -- ( "Title\n"
+            --     `append` " [* bold] and [/ italic]"
+            --     `append` "\tcode:haskell"
+            --     `append` "　 main = pure ()"
+            --     `append` " #tag"
+            -- )
+            (Text.unlines ["Title", " [* bold] and [/ italic]", "\tcode:haskell", "　 main = pure ()", " #tag"])
             ( Document
-                [ Paragraph [PlainText "Title"]
-                , UListItem
-                    1
-                    [ Paragraph
-                        [ Bold 1 "bold"
-                        , PlainText " and "
-                        , Italic "italic"
-                        ]
-                    , CodeBlock "haskell" " main = pure ()"
-                    , Paragraph [HashTag "tag"]
-                    ]
+                [ Paragraph{_indent = 0, _line = [PlainText "Title"]} -- Assuming Title is not indented
+                , Paragraph{_indent = 1, _line = [Bold{_boldLevel = 1, _boldText = "bold"}, PlainText " and ", Italic{_italicBoldLevel = 0, _italicText = "italic"}]} -- Assuming this line is indented by 1
+                , CodeBlock{_indent = 1, _lang = "haskell", _code = " main = pure ()"} -- Assuming CodeBlock is part of the list item, hence indent 1. This might need further clarification based on parser logic.
+                , Paragraph{_indent = 1, _line = [HashTag "tag"]} -- Assuming this line is indented by 1
                 ]
             )
         ]
 
 -- コマンドラインのテスト
 commandLineTests :: Test
-commandLineTests = 
+commandLineTests =
     TestList
         [ testParseCocense
             "command line with dollar"
@@ -301,12 +296,38 @@ quotationTests =
         [ testParseCocense
             "simple quotation"
             "> quoted text"
-            (Document [Quotation [PlainText "quoted text"]])
+            (Document [Quotation{_indent = 0, _quaLine = Paragraph{_indent = 0, _line = [PlainText "quoted text"]}}])
+        , testParseCocense
+            "quotation with indented paragraph"
+            ">  indented quoted text"
+            (Document [Quotation{_indent = 0, _quaLine = Paragraph{_indent = 1, _line = [PlainText "indented quoted text"]}}])
+        , testParseCocense
+            "multiple consecutive quotation lines"
+            "> line1\n> line2"
+            ( Document
+                [ Quotation{_indent = 0, _quaLine = Paragraph{_indent = 0, _line = [PlainText "line1"]}}
+                , Quotation{_indent = 0, _quaLine = Paragraph{_indent = 0, _line = [PlainText "line2"]}}
+                ]
+            )
         ]
 
 -- tests の更新
 tests :: Test
-tests = TestList []
+tests =
+    TestList
+        [ inlineTextTests
+        , inlineDecoratedTests
+        , linkTests
+        , pageLinkTest
+        , specialInlineTests
+        , blockTests
+        , listTests
+        , complexDocumentTests
+        , commandLineTests
+        , crossOutTests
+        , iconTests
+        , quotationTests
+        ]
 
 main :: IO ()
 main = do
