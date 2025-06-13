@@ -1,8 +1,44 @@
 module Main (main) where
 
-import AST
 import Control.Lens
-import Data.Text (Text, append)
+import AST (
+    Block (
+        BlankLine,
+        CodeBlock,
+        Paragraph,
+        Quotation,
+        _code,
+        _indent,
+        _lang,
+        _line,
+        _quaLine
+    ),
+    Document (..),
+    Inline (
+        Bold,
+        CodeSpan,
+        CommandLine,
+        CrossOut,
+        HashTag,
+        Icon,
+        Image,
+        Italic,
+        Link,
+        Math,
+        PageLink,
+        PlainText,
+        _boldLevel,
+        _boldText,
+        _imageURL,
+        _italicBoldLevel,
+        _italicText,
+        _link,
+        _linkLabel,
+        _linkedURL
+    ),
+ )
+import Data.Text (Text)
+import Data.Text qualified as Text
 import Test.HUnit
 
 parseScrapbox :: a
