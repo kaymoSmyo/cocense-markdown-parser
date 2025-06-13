@@ -36,7 +36,8 @@ import AST (
         _linkedURL
     ),
  )
-import Data.Text (Text, append)
+import Data.Text (Text)
+import Data.Text qualified as Text
 import Test.HUnit
 
 parseScrapbox :: a
@@ -237,12 +238,13 @@ complexDocumentTests =
     TestList
         [ testParseCocense
             "complex document with mixed elements"
-            ( "Title\n"
-                `append` " [* bold] and [/ italic]"
-                `append` "\tcode:haskell"
-                `append` "　 main = pure ()"
-                `append` " #tag"
-            )
+            -- ( "Title\n"
+            --     `append` " [* bold] and [/ italic]"
+            --     `append` "\tcode:haskell"
+            --     `append` "　 main = pure ()"
+            --     `append` " #tag"
+            -- )
+            (Text.unlines ["Title", " [* bold] and [/ italic]", "\tcode:haskell", "　 main = pure ()", " #tag"])
             ( Document
                 [ Paragraph{_indent = 0, _line = [PlainText "Title"]} -- Assuming Title is not indented
                 , Paragraph{_indent = 1, _line = [Bold{_boldLevel = 1, _boldText = "bold"}, PlainText " and ", Italic{_italicBoldLevel = 0, _italicText = "italic"}]} -- Assuming this line is indented by 1
