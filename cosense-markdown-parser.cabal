@@ -23,9 +23,9 @@ common common-config
     -Wincomplete-uni-patterns -Wpartial-fields -Wredundant-constraints
 
   build-depends:
-    , megaparsec      >=9.7.0  && <9.8
-    , raw-strings-qq  >=1.1    && <1.2
-    , text            >=2.0.2  && <2.1
+    , megaparsec
+    , raw-strings-qq
+    , text
 
   default-extensions:
     BangPatterns
@@ -73,7 +73,7 @@ library
 
   -- other-modules:
   -- other-extensions:
-  build-depends:   base ^>=4.18.3.0
+  build-depends:   base
   hs-source-dirs:  src
 
 executable cosense-markdown-parser
@@ -83,7 +83,7 @@ executable cosense-markdown-parser
   -- other-modules:
   -- other-extensions:
   build-depends:
-    , base                     ^>=4.18.3.0
+    , base
     , cosense-markdown-parser
 
   hs-source-dirs: app
@@ -97,6 +97,6 @@ test-suite cosense-markdown-parser-test
   hs-source-dirs: test
   main-is:        Main.hs
   build-depends:
-    , base                     ^>=4.18.3.0
+    , base
     , cosense-markdown-parser
-    , HUnit
+    , hspec
