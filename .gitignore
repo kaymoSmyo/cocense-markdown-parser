@@ -2,3 +2,4 @@ out.txt
 dist-newstyle
 .vscode
 .envrc
+.direnv
