@@ -1,7 +1,4 @@
 out.txt
-source-for-gemini
 dist-newstyle
 .vscode
-meirei.txt
-memo.md
-prompt.md
+.envrc
