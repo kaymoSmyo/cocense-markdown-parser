@@ -52,7 +52,8 @@ inlineTextTest = describe "InlineElem Tests" $ do
 
     describe "Tex" $ do
         it "tex" $ do
-            parseCosense "[$ E = mc^2]" `shouldBe` Tex "E = mc^2"
+            parseCosense "[$ e^{i\\theta} = \\cos \\theta + i \\sin \\theta]"
+                `shouldBe` Tex "e^{i\\theta} = \\cos \\theta + i \\sin \\theta"
 
     describe "Code" $ do
         it "code span" $ do
