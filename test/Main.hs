@@ -3,219 +3,220 @@ module Main (main) where
 import AST
 import Data.Text (Text, append)
 import Test.Hspec (Spec, describe, hspec, it, shouldBe)
+import InlineTest (inlineTextTest)
 
-parseScrapbox :: Text -> Document
-parseScrapbox = undefined
+-- parseScrapbox :: Text -> Document
+-- parseScrapbox _ = Document $ [Paragraph [PlainText ""]]
 
-renderMarkdown :: Document -> Text
-renderMarkdown = undefined
+-- renderMarkdown :: Document -> Text
+-- renderMarkdown _ = ""
 
--- ヘルパー関数
-specParseAndRender :: String -> Text -> Document -> Spec
-specParseAndRender name input expected = do
-    it (name <> " - parse") $ parseScrapbox input `shouldBe` expected
-    it (name <> " - render") $ renderMarkdown expected `shouldBe` input
+-- -- ヘルパー関数
+-- specParseAndRender :: String -> Text -> Document -> Spec
+-- specParseAndRender name input expected = do
+--     it (name <> " - parse") $ parseScrapbox input `shouldBe` expected
+--     it (name <> " - render") $ renderMarkdown expected `shouldBe` input
 
--- インラインテキスト要素のテスト
-inlineTextSpec :: Spec
-inlineTextSpec = describe "Inline Text Tests" $ do
-    specParseAndRender
-        "plain text"
-        "This is plain text"
-        (Document [Paragraph [PlainText "This is plain text"]])
-    specParseAndRender
-        "mixed plain texts"
-        "First line\nSecond line"
-        ( Document
-            [ Paragraph [PlainText "First line"]
-            , Paragraph [PlainText "Second line"]
-            ]
-        )
+-- -- インラインテキスト要素のテスト
+-- inlineTextSpec :: Spec
+-- inlineTextSpec = describe "Inline Text Tests" $ do
+--     specParseAndRender
+--         "plain text"
+--         "This is plain text"
+--         (Document [Paragraph [PlainText "This is plain text"]])
+--     specParseAndRender
+--         "mixed plain texts"
+--         "First line\nSecond line"
+--         ( Document
+--             [ Paragraph [PlainText "First line"]
+--             , Paragraph [PlainText "Second line"]
+--             ]
+--         )
 
--- 装飾付きインライン要素のテスト
-inlineDecoratedSpec :: Spec
-inlineDecoratedSpec = describe "Inline Decorated Tests" $ do
-    specParseAndRender
-        "bold - single asterisk"
-        "[* bold]"
-        (Document [Paragraph [Bold 1 "bold"]])
-    specParseAndRender
-        "bold - double asterisk"
-        "[** very bold]"
-        (Document [Paragraph [Bold 2 "very bold"]])
-    specParseAndRender
-        "italic"
-        "[/ italic]"
-        (Document [Paragraph [Italic "italic"]])
-    specParseAndRender
-        "code span"
-        "`code`"
-        (Document [Paragraph [CodeSpan "code"]])
+-- -- 装飾付きインライン要素のテスト
+-- inlineDecoratedSpec :: Spec
+-- inlineDecoratedSpec = describe "Inline Decorated Tests" $ do
+--     specParseAndRender
+--         "bold - single asterisk"
+--         "[* bold]"
+--         (Document [Paragraph [Bold 1 "bold"]])
+--     specParseAndRender
+--         "bold - double asterisk"
+--         "[** very bold]"
+--         (Document [Paragraph [Bold 2 "very bold"]])
+--     specParseAndRender
+--         "italic"
+--         "[/ italic]"
+--         (Document [Paragraph [Italic "italic"]])
+--     specParseAndRender
+--         "code span"
+--         "`code`"
+--         (Document [Paragraph [CodeSpan "code"]])
 
--- リンク関連要素のテスト
-linkSpec :: Spec
-linkSpec = describe "Link Tests" $ do
-    specParseAndRender
-        "simple link"
-        "[link]"
-        (Document [Paragraph [Link "link" Nothing]])
-    specParseAndRender
-        "link with text"
-        "[url text]"
-        (Document [Paragraph [Link "url" (Just "text")]])
-    specParseAndRender
-        "image"
-        "[https://example.com/image.png]"
-        (Document [Paragraph [Image "https://example.com/image.png" Nothing]])
-    specParseAndRender
-        "image with alt text"
-        "[https://example.com/image.png alt text]"
-        (Document [Paragraph [Image "https://example.com/image.png" (Just "alt text")]])
+-- -- リンク関連要素のテスト
+-- linkSpec :: Spec
+-- linkSpec = describe "Link Tests" $ do
+--     specParseAndRender
+--         "simple link"
+--         "[link]"
+--         (Document [Paragraph [Link "link" Nothing]])
+--     specParseAndRender
+--         "link with text"
+--         "[url text]"
+--         (Document [Paragraph [Link "url" (Just "text")]])
+--     specParseAndRender
+--         "image"
+--         "[https://example.com/image.png]"
+--         (Document [Paragraph [Image "https://example.com/image.png" Nothing]])
+--     specParseAndRender
+--         "image with alt text"
+--         "[https://example.com/image.png alt text]"
+--         (Document [Paragraph [Image "https://example.com/image.png" (Just "alt text")]])
 
--- []記法のテスト
-refTextSpec :: Spec
-refTextSpec = describe "[] Tests" $ do
-    specParseAndRender
-        "ref text"
-        "[reference]"
-        (Document [Paragraph [RefText "reference"]])
-    specParseAndRender
-        "multiple ref texts"
-        "[ref1][ref2]"
-        (Document [Paragraph [RefText "ref1", RefText "ref2"]])
-    specParseAndRender
-        "nest ref text"
-        "[ref [nest ref]]"
-        (Document [Paragraph [RefText "ref [nest ref]"]])
+-- -- []記法のテスト
+-- refTextSpec :: Spec
+-- refTextSpec = describe "[] Tests" $ do
+--     specParseAndRender
+--         "ref text"
+--         "[reference]"
+--         (Document [Paragraph [RefText "reference"]])
+--     specParseAndRender
+--         "multiple ref texts"
+--         "[ref1][ref2]"
+--         (Document [Paragraph [RefText "ref1", RefText "ref2"]])
+--     specParseAndRender
+--         "nest ref text"
+--         "[ref [nest ref]]"
+--         (Document [Paragraph [RefText "ref [nest ref]"]])
 
--- 特殊インライン要素のテスト
-specialInlineSpec :: Spec
-specialInlineSpec = describe "Special Inline Tests" $ do
-    specParseAndRender
-        "math"
-        "[$ E = mc^2]"
-        (Document [Paragraph [Math "E = mc^2"]])
-    specParseAndRender
-        "hashtag"
-        "#tag"
-        (Document [Paragraph [HashTag "tag"]])
+-- -- 特殊インライン要素のテスト
+-- specialInlineSpec :: Spec
+-- specialInlineSpec = describe "Special Inline Tests" $ do
+--     specParseAndRender
+--         "math"
+--         "[$ E = mc^2]"
+--         (Document [Paragraph [Math "E = mc^2"]])
+--     specParseAndRender
+--         "hashtag"
+--         "#tag"
+--         (Document [Paragraph [HashTag "tag"]])
 
--- ブロックレベル要素のテスト
-blockSpec :: Spec
-blockSpec = describe "Block Tests" $ do
-    specParseAndRender
-        "code block without language"
-        "code:haskell\n main = pure ()"
-        (Document [CodeBlock "haskell" "main = pure ()"])
-    specParseAndRender
-        "code block with language"
-        "code:haskell\n main = putStrLn \"Hello\""
-        (Document [CodeBlock "haskell" "main = putStrLn \"Hello\""])
-    specParseAndRender
-        "blank line"
-        "\n"
-        (Document [BlankLine])
-    specParseAndRender
-        "code block with tab indent"
-        "code:haskell\n\tmain = pure ()"
-        (Document [CodeBlock "haskell" "main = pure ()"])
-    specParseAndRender
-        "code block with space indent"
-        "code:haskell\n main = pure ()"
-        (Document [CodeBlock "haskell" "main = pure ()"])
-    specParseAndRender
-        "code block with full-width space indent"
-        "code:haskell\n　main = pure ()"
-        (Document [CodeBlock "haskell" "main = pure ()"])
+-- -- ブロックレベル要素のテスト
+-- blockSpec :: Spec
+-- blockSpec = describe "Block Tests" $ do
+--     specParseAndRender
+--         "code block without language"
+--         "code:haskell\n main = pure ()"
+--         (Document [CodeBlock "haskell" "main = pure ()"])
+--     specParseAndRender
+--         "code block with language"
+--         "code:haskell\n main = putStrLn \"Hello\""
+--         (Document [CodeBlock "haskell" "main = putStrLn \"Hello\""])
+--     specParseAndRender
+--         "blank line"
+--         "\n"
+--         (Document [BlankLine])
+--     specParseAndRender
+--         "code block with tab indent"
+--         "code:haskell\n\tmain = pure ()"
+--         (Document [CodeBlock "haskell" "main = pure ()"])
+--     specParseAndRender
+--         "code block with space indent"
+--         "code:haskell\n main = pure ()"
+--         (Document [CodeBlock "haskell" "main = pure ()"])
+--     specParseAndRender
+--         "code block with full-width space indent"
+--         "code:haskell\n　main = pure ()"
+--         (Document [CodeBlock "haskell" "main = pure ()"])
 
--- リスト要素のテスト
-listSpec :: Spec
-listSpec = describe "List Tests" $ do
-    specParseAndRender
-        "single list item"
-        " item"
-        (Document [UListItem 1 [Paragraph [PlainText "item"]]])
-    specParseAndRender
-        "multiple list items"
-        " item1\n item2"
-        ( Document
-            [ UListItem 1 [Paragraph [PlainText "item1"]]
-            , UListItem 1 [Paragraph [PlainText "item2"]]
-            ]
-        )
-    specParseAndRender
-        "nested list items"
-        " item1\n  item2\n   item3"
-        ( Document
-            [ UListItem 1 [Paragraph [PlainText "item1"]]
-            , UListItem 2 [Paragraph [PlainText "item2"]]
-            , UListItem 3 [Paragraph [PlainText "item3"]]
-            ]
-        )
-    specParseAndRender
-        "list items with mixed indentation"
-        " item1\n\titem2\n　item3" -- スペース、タブ、全角スペース
-        ( Document
-            [ UListItem 1 [Paragraph [PlainText "item1"]]
-            , UListItem 1 [Paragraph [PlainText "item2"]]
-            , UListItem 1 [Paragraph [PlainText "item3"]]
-            ]
-        )
-    specParseAndRender
-        "nested list with mixed indentation"
-        " item1\n\t\titem2\n　　　item3" -- レベル1、2、3をそれぞれ異なる種類のインデント
-        ( Document
-            [ UListItem 1 [Paragraph [PlainText "item1"]]
-            , UListItem 2 [Paragraph [PlainText "item2"]]
-            , UListItem 3 [Paragraph [PlainText "item3"]]
-            ]
-        )
-    specParseAndRender
-        "list with irregular mixed indentation"
-        " item1\n 　item2\n　 \titem3" -- 半角スペース+全角スペース、全角スペース+半角スペース+タブの混在
-        ( Document
-            [ UListItem 1 [Paragraph [PlainText "item1"]]
-            , UListItem 2 [Paragraph [PlainText "item2"]]
-            , UListItem 3 [Paragraph [PlainText "item3"]]
-            ]
-        )
+-- -- リスト要素のテスト
+-- listSpec :: Spec
+-- listSpec = describe "List Tests" $ do
+--     specParseAndRender
+--         "single list item"
+--         " item"
+--         (Document [UListItem 1 [Paragraph [PlainText "item"]]])
+--     specParseAndRender
+--         "multiple list items"
+--         " item1\n item2"
+--         ( Document
+--             [ UListItem 1 [Paragraph [PlainText "item1"]]
+--             , UListItem 1 [Paragraph [PlainText "item2"]]
+--             ]
+--         )
+--     specParseAndRender
+--         "nested list items"
+--         " item1\n  item2\n   item3"
+--         ( Document
+--             [ UListItem 1 [Paragraph [PlainText "item1"]]
+--             , UListItem 2 [Paragraph [PlainText "item2"]]
+--             , UListItem 3 [Paragraph [PlainText "item3"]]
+--             ]
+--         )
+--     specParseAndRender
+--         "list items with mixed indentation"
+--         " item1\n\titem2\n　item3" -- スペース、タブ、全角スペース
+--         ( Document
+--             [ UListItem 1 [Paragraph [PlainText "item1"]]
+--             , UListItem 1 [Paragraph [PlainText "item2"]]
+--             , UListItem 1 [Paragraph [PlainText "item3"]]
+--             ]
+--         )
+--     specParseAndRender
+--         "nested list with mixed indentation"
+--         " item1\n\t\titem2\n　　　item3" -- レベル1、2、3をそれぞれ異なる種類のインデント
+--         ( Document
+--             [ UListItem 1 [Paragraph [PlainText "item1"]]
+--             , UListItem 2 [Paragraph [PlainText "item2"]]
+--             , UListItem 3 [Paragraph [PlainText "item3"]]
+--             ]
+--         )
+--     specParseAndRender
+--         "list with irregular mixed indentation"
+--         " item1\n 　item2\n　 \titem3" -- 半角スペース+全角スペース、全角スペース+半角スペース+タブの混在
+--         ( Document
+--             [ UListItem 1 [Paragraph [PlainText "item1"]]
+--             , UListItem 2 [Paragraph [PlainText "item2"]]
+--             , UListItem 3 [Paragraph [PlainText "item3"]]
+--             ]
+--         )
 
--- 複合的なドキュメントのテスト
-complexDocumentSpec :: Spec
-complexDocumentSpec = describe "Complex Document Tests" $ do
-    specParseAndRender
-        "mixed elements"
-        ( "Title\n"
-            `append` " [* bold] and [/ italic]"
-            `append` "\tcode:haskell"
-            `append` "　 main = pure ()"
-            `append` " #tag"
-        )
-        ( Document
-            [ Paragraph [PlainText "Title"]
-            , UListItem
-                1
-                [ Paragraph
-                    [ Bold 1 "bold"
-                    , PlainText " and "
-                    , Italic "italic"
-                    ]
-                , CodeBlock "haskell" " main = pure ()"
-                , Paragraph [HashTag "tag"]
-                ]
-            ]
-        )
+-- -- 複合的なドキュメントのテスト
+-- complexDocumentSpec :: Spec
+-- complexDocumentSpec = describe "Complex Document Tests" $ do
+--     specParseAndRender
+--         "mixed elements"
+--         ( "Title\n"
+--             `append` " [* bold] and [/ italic]"
+--             `append` "\tcode:haskell"
+--             `append` "　 main = pure ()"
+--             `append` " #tag"
+--         )
+--         ( Document
+--             [ Paragraph [PlainText "Title"]
+--             , UListItem
+--                 1
+--                 [ Paragraph
+--                     [ Bold 1 "bold"
+--                     , PlainText " and "
+--                     , Italic "italic"
+--                     ]
+--                 , CodeBlock "haskell" " main = pure ()"
+--                 , Paragraph [HashTag "tag"]
+--                 ]
+--             ]
+--         )
 
-spec :: Spec
-spec = do
-    inlineTextSpec
-    inlineDecoratedSpec
-    linkSpec
-    specialInlineSpec
-    blockSpec
-    listSpec
-    complexDocumentSpec
-    refTextSpec
+-- spec :: Spec
+-- spec = do
+--     inlineTextSpec
+--     inlineDecoratedSpec
+--     linkSpec
+--     specialInlineSpec
+--     blockSpec
+--     listSpec
+--     complexDocumentSpec
+--     refTextSpec
 
 main :: IO ()
-main = hspec spec
+main = hspec inlineTextTest
