@@ -39,6 +39,7 @@ common common-config
     DeriveGeneric
     DeriveTraversable
     DoAndIfThenElse
+    DuplicateRecordFields
     EmptyDataDecls
     ExistentialQuantification
     FlexibleContexts
@@ -52,6 +53,8 @@ common common-config
     MultiParamTypeClasses
     MultiWayIf
     NamedFieldPuns
+    NoFieldSelectors
+    OverloadedRecordDot
     OverloadedStrings
     PartialTypeSignatures
     PatternGuards
@@ -64,7 +67,7 @@ common common-config
     TypeFamilies
     TypeSynonymInstances
     ViewPatterns
-    
+
 -- AutoDeriveTypeable
 -- MonadFailDesugaring
 library
@@ -90,8 +93,8 @@ executable cosense-markdown-parser
 
 test-suite cosense-markdown-parser-test
   import:         common-config
+  other-modules:  InlineTest
 
-  other-modules: InlineTest
   -- other-extensions:
   type:           exitcode-stdio-1.0
   hs-source-dirs: test
