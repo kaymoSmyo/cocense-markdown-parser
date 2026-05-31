@@ -28,9 +28,20 @@ inlineTextTest = describe "InlineElem Tests" $ do
             parseCosense "[*/- abc]"
                 `shouldBe` Enhaced [Bold 1, Italic, CrossOut] (Plain "abc")
         it "nested enhance" $ do
-            parseCosense "[*/- [page]]" 
+            parseCosense "[*/- [page]]"
                 `shouldBe` Enhaced [Bold 1, Italic, CrossOut] (Link "page")
             parseCosense "[*/- #tag]" `shouldBe` Enhaced [Bold 1, Italic, CrossOut] (HashTag "tag")
+
+    describe "Enhace (invalid patterns)" $ do
+        it "no space after marker (bold)" $ do
+            parseCosense "[*abc]" `shouldBe` Link "*abc"
+        it "no space after marker (italic)" $ do
+            parseCosense "[/abc]" `shouldBe` Link "/abc"
+        it "no space after marker (crossout)" $ do
+            parseCosense "[-abc]" `shouldBe` Link "-abc"
+        it "no space after combined markers" $ do
+            parseCosense "[*/-abc]" `shouldBe` Link "*/-abc"
+
     describe "Plain" $ do
         it "plain text" $ do
             parseCosense "abc" `shouldBe` Plain "abc"
