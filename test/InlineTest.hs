@@ -10,8 +10,6 @@ parseCosense _ = undefined
 {--
 テストリスト
 
-[Enhance [page]]
-[Enhance #tag]
 [[bold]]
 
 --}
@@ -29,7 +27,10 @@ inlineTextTest = describe "InlineElem Tests" $ do
         it "bold italic crossout" $ do
             parseCosense "[*/- abc]"
                 `shouldBe` Enhaced [Bold 1, Italic, CrossOut] (Plain "abc")
-
+        it "nested enhance" $ do
+            parseCosense "[*/- [page]]" 
+                `shouldBe` Enhaced [Bold 1, Italic, CrossOut] (Link "page")
+            parseCosense "[*/- #tag]" `shouldBe` Enhaced [Bold 1, Italic, CrossOut] (HashTag "tag")
     describe "Plain" $ do
         it "plain text" $ do
             parseCosense "abc" `shouldBe` Plain "abc"
@@ -37,6 +38,8 @@ inlineTextTest = describe "InlineElem Tests" $ do
     describe "Link" $ do
         it "page link" $ do
             parseCosense "[Page]" `shouldBe` Link "Page"
+        it "enhance-like text is plain inside link" $ do
+            parseCosense "[[- aiu]]" `shouldBe` Link "[- aiu]"
 
     describe "HashTag" $ do
         it "hashtag" $ do
