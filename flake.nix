@@ -3,10 +3,15 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/566acc0";
+    tricorder.url = "github:tweag/tricorder";
   };
 
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      tricorder,
+    }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
@@ -19,6 +24,7 @@
           hpkgs.ghc
           hpkgs.haskell-language-server
           hpkgs.cabal-fmt
+          tricorder.packages.${system}.tricorder
         ];
       };
     };
