@@ -103,3 +103,4 @@ test-suite cosense-markdown-parser-test
     , base
     , cosense-markdown-parser
     , hspec
+    , tasty
