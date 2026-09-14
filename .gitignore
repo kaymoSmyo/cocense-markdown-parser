@@ -4,4 +4,4 @@ dist-newstyle
 .envrc
 .direnv
 .git
-fence.json
+fence.jsonc
