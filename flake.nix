@@ -2,7 +2,7 @@
   description = "Haskell project template GHC910";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/566acc0";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     tricorder.url = "github:tweag/tricorder";
   };
 
